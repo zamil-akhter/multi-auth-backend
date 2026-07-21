@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
@@ -6,6 +7,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Bootstrap');
+  const configService = app.get(ConfigService);
 
   const config = new DocumentBuilder()
     .setTitle('Multi Auth Backend API')
@@ -17,10 +19,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const port = process.env.PORT ?? 3000;
+  const port = configService.get<number>('PORT', 3000);
   await app.listen(port);
 
-  logger.debug(`Server started on port ${port}`);
-  logger.debug(`Swagger available at http://localhost:${port}/docs`);
+  logger.log(`Server started on port ${port}`);
+  logger.log(`Swagger available at http://localhost:${port}/docs`);
 }
 bootstrap();
