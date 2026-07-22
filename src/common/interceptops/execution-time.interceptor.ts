@@ -17,19 +17,13 @@ export class ExecutionTimeInterceptor implements NestInterceptor {
         const url = request.route?.path || request.path; // Clean path, no query params
         let statusCode = response.statusCode;
         const statusMessage = response.statusMessage; // 'Not Modified',
-        // console.log("----statusCode----", statusCode);
-        // console.log("----statusMessage----", response.statusMessage);
         if(statusMessage === "Not Modified") {
           statusCode = 200
         }
-        // console.log("----statusMessage----", response.statusMessage);
-        // console.log("----statusCode----", statusCode);
-        // Color the status code: green for 2xx, red for others
         const color = statusCode >= 200 && statusCode < 300 ? "\x1b[32m" : "\x1b[31m"; // Green or Red
         const reset = "\x1b[0m"; // Reset color
         const yellow = "\x1b[33m";
 
-        // this.logger.debug([${method} API ${url}] responded with status ${color}${statusCode}${reset} in ${executionTime}ms);
         this.logger.debug(`${yellow}[${method} API ${url}]${reset}responded with status ${color}${statusCode}${reset}${statusMessage === 'Not Modified' ? ' (was 304)' : ''} in ${executionTime}ms`);
 
       })
