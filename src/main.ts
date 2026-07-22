@@ -17,7 +17,12 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true, // Retains tokens on browser refresh
+      defaultModelsExpandDepth: -1, // Hides the Schemas section completely
+    },
+  });
 
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port);
