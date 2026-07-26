@@ -2,14 +2,14 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Forbi
 import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
 import { Model } from 'mongoose';
-import { JwtService } from 'src/helpers/jwt.service';
+import { JwtHelperService } from 'src/common/helpers/jwt.service';
 import { USER_MODEL, UserDocument } from 'src/schemas/user.schema';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     @InjectModel(USER_MODEL) private readonly userModel: Model<UserDocument>,
-    private readonly jwtService: JwtService,
+    private readonly jwtHelperService: JwtHelperService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -20,7 +20,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verify(token);
+      const payload = await this.jwtHelperService.verifyToken(token);
       if (!payload) {
         throw new ForbiddenException('Invalid token payload.');
       }
