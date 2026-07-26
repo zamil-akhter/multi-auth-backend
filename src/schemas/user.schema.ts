@@ -4,16 +4,16 @@ import { HydratedDocument } from 'mongoose';
 @Schema({ timestamps: true })
 export class User {
   @Prop({ required: true, trim: true })
-  name: string;
+  name!: string;
 
   @Prop({ required: true, unique: true, lowercase: true, trim: true })
-  email: string;
+  email!: string;
 
   @Prop({ required: true })
-  password: string;
+  password!: string;
 
   @Prop({ required: true, default: false })
-  isPasswordVerified: boolean;
+  isPasswordVerified!: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
