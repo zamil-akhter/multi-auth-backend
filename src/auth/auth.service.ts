@@ -31,15 +31,15 @@ export class AuthService {
     const { email, password } = dto;
     const user = await this.userModel.findOne({ email });
     if (!user) {
-      return { success: false, message: 'Invalid email or password' };
+      return { success: false, message: messages.INVALID_CREDENTIALS };
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return { success: false, message: 'Invalid email or password' };
+      return { success: false, message: messages.INVALID_CREDENTIALS };
     }
 
     const token = await this.jwtHelperService.generateToken({ sub: user._id });
 
-    return { success: true, message: 'Login successful', data: { userId: user._id, name: user.name, email: user.email }, token: token };
+    return { success: true, message: messages.LOGIN_SUCCESS, data: { userId: user._id, name: user.name, email: user.email }, token: token };
   }
 }
