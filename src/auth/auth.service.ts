@@ -1,26 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { SignUpDto } from './dto/auth.dto';
+import { USER_MODEL, UserDocument } from 'src/schemas/user.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(@InjectModel(USER_MODEL) private readonly userModel: Model<UserDocument>) {}
+  async signUp(dto: SignUpDto): Promise<{ success: boolean; message: string; data?: any }> {
+    const { name, email, password } = dto;
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+    const isUserExists = await this.userModel.findOne({ email });
+    if (isUserExists) {
+      throw new Error('User with this email already exists.');
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    this.userModel.create({ name, email, password: hashedPassword });
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    return {
+      success: true,
+      message: 'User signed up successfully',
+      data: {},
+    };
   }
 }
