@@ -1,5 +1,5 @@
 export const messages = {
   INTERNAL_SERVER_ERROR: 'Internal server error',
   USER_ALREADY_EXISTS: 'User already exists with this email',
-  USER_SIGNUP_SUCCESS: 'User signedup successfully',
+  SIGNUP_SUCCESS: 'Signup successfully completed',
 };

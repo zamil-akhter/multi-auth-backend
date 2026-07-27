@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -7,18 +7,21 @@ import { ExecutionTimeInterceptor } from './common/interceptops/execution-time.i
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (errors) => {
+        const messages = errors.map((error) => Object.values(error.constraints ?? {})[0]).filter(Boolean) as string[];
 
+        return new BadRequestException(messages[0] || 'Validation failed');
+      },
+    }),
+  );
   app.useGlobalInterceptors(new ExecutionTimeInterceptor());
 
   const logger = new Logger('Bootstrap');
   const configService = app.get(ConfigService);
 
-  const config = new DocumentBuilder()
-    .setTitle('Multi Auth Backend API')
-    .setDescription('Authentication, session, and security endpoints')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  const config = new DocumentBuilder().setTitle('Multi Auth Backend API').setDescription('Authentication, session, and security endpoints').setVersion('1.0').addBearerAuth().build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document, {
