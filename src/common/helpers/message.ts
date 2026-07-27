@@ -4,4 +4,6 @@ export const messages = {
   SIGNUP_SUCCESS: 'Signup successfully completed',
   INVALID_CREDENTIALS: 'Invalid email or password',
   LOGIN_SUCCESS: 'Login successful',
+  PROFILE_FETCH_SUCCESS: 'Profile fetched successfully',
+  PROFILE_FETCH_FAILED: 'Profile fetch failed',
 };

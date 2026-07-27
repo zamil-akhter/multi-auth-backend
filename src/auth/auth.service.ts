@@ -42,4 +42,22 @@ export class AuthService {
 
     return { success: true, message: messages.LOGIN_SUCCESS, data: { userId: user._id, name: user.name, email: user.email }, token: token };
   }
+
+  async getMe(userId: string): Promise<{ success: boolean; message: string; data?: any }> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      return { success: false, message: messages.PROFILE_FETCH_FAILED };
+    }
+
+    return {
+      success: true,
+      message: messages.PROFILE_FETCH_SUCCESS,
+      data: {
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        isEmailVerified: user.isEmailVerified,
+      },
+    };
+  }
 }
