@@ -5,6 +5,7 @@ import type { Response } from 'express';
 import { LogInDto, SignUpDto } from './dto/auth.dto';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { messages } from 'src/common/helpers/message';
 
 @Controller('auth')
 export class AuthController {
@@ -35,7 +36,8 @@ export class AuthController {
       }
       return this.responseHandler.errorResponse(res, result.message);
     } catch (error) {
-      return this.responseHandler.catchErrorResponse(res, error.message);
+      const message = error instanceof Error ? error.message : messages.INTERNAL_SERVER_ERROR;
+      return this.responseHandler.catchErrorResponse(res, message);
     }
   }
 
@@ -50,7 +52,8 @@ export class AuthController {
       }
       return this.responseHandler.errorResponse(res, result.message);
     } catch (error) {
-      return this.responseHandler.catchErrorResponse(res, error.message);
+      const message = error instanceof Error ? error.message : messages.INTERNAL_SERVER_ERROR;
+      return this.responseHandler.catchErrorResponse(res, message);
     }
   }
 }
