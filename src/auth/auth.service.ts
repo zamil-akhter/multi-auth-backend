@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { messages } from 'src/common/helpers/message';
 import { JwtHelperService } from 'src/common/helpers/jwt.service';
+import { MailService } from 'src/mail/mail.service';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     @InjectModel(USER_MODEL) private readonly userModel: Model<UserDocument>,
     private readonly jwtHelperService: JwtHelperService,
+    private readonly mailService: MailService,
   ) {}
   async signUp(dto: SignUpDto): Promise<{ success: boolean; message: string; data?: SignUpDto }> {
     const { name, email, password } = dto;
@@ -24,7 +26,9 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const token = crypto.randomBytes(32).toString('hex');
-    await this.userModel.create({ name, email, password: hashedPassword, emailVerificationToken: token, emailVerificationExpires: new Date(Date.now() + 60 * 60 * 1000) });
+    const user = await this.userModel.create({ name, email, password: hashedPassword, emailVerificationToken: token, emailVerificationExpires: new Date(Date.now() + 60 * 60 * 1000) });
+
+    await this.mailService.sendVerificationEmail(user.email, user.name, token);
 
     return { success: true, message: messages.SIGNUP_SUCCESS };
   }
