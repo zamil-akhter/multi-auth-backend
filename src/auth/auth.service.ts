@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { messages } from 'src/common/helpers/message';
 import { JwtHelperService } from 'src/common/helpers/jwt.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,8 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this.userModel.create({ name, email, password: hashedPassword });
+    const token = crypto.randomBytes(32).toString('hex');
+    await this.userModel.create({ name, email, password: hashedPassword, emailVerificationToken: token, emailVerificationExpires: new Date(Date.now() + 60 * 60 * 1000) });
 
     return { success: true, message: messages.SIGNUP_SUCCESS };
   }

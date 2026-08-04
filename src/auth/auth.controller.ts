@@ -23,7 +23,8 @@ export class AuthController {
       }
       return this.responseHandler.errorResponse(res, result.message);
     } catch (error) {
-      return this.responseHandler.catchErrorResponse(res, error.message);
+      const message = error instanceof Error ? error.message : messages.INTERNAL_SERVER_ERROR;
+      return this.responseHandler.catchErrorResponse(res, message);
     }
   }
 
