@@ -33,12 +33,35 @@ export class AuthService {
     return { success: true, message: messages.SIGNUP_SUCCESS };
   }
 
+  async verifyEmail(token: string): Promise<{ success: boolean; message: string; data?: any }> {
+    const user = await this.userModel.findOne({
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return { success: false, message: messages.INVALID_OR_EXPIRED_TOKEN };
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save();
+
+    return { success: true, message: messages.EMAIL_VERIFICATION_SUCCESS };
+  }
+
   async logIn(dto: LogInDto): Promise<{ success: boolean; message: string; data?: any; token?: string }> {
     const { email, password } = dto;
     const user = await this.userModel.findOne({ email });
     if (!user) {
       return { success: false, message: messages.INVALID_CREDENTIALS };
     }
+
+    if (!user.isEmailVerified) {
+      return { success: false, message: messages.EMAIL_NOT_VERIFIED };
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return { success: false, message: messages.INVALID_CREDENTIALS };

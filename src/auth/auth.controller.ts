@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, UseGuards, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ResponseHandler } from 'src/common/helpers/response-handler';
 import type { Response } from 'express';
@@ -18,6 +18,20 @@ export class AuthController {
   async signUp(@Res() res: Response, @Body() dto: SignUpDto, @Req() req: Request) {
     try {
       const result = await this.authService.signUp(dto);
+      if (result.success) {
+        return this.responseHandler.successResponseWithData(res, result.message, result.data);
+      }
+      return this.responseHandler.errorResponse(res, result.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : messages.INTERNAL_SERVER_ERROR;
+      return this.responseHandler.catchErrorResponse(res, message);
+    }
+  }
+
+  @Get('verify-email')
+  async verifyEmail(@Res() res: Response, @Req() req: Request, @Query('token') token: string) {
+    try {
+      const result = await this.authService.verifyEmail(token);
       if (result.success) {
         return this.responseHandler.successResponseWithData(res, result.message, result.data);
       }
