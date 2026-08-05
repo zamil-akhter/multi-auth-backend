@@ -19,7 +19,7 @@ export class AuthService {
   async signUp(dto: SignUpDto): Promise<{ success: boolean; message: string; data?: SignUpDto }> {
     const { name, email, password } = dto;
 
-    const isUserExists = await this.userModel.findOne({ email });
+    const isUserExists = await this.userModel.findOne({ email, isEmailVerified: true });
     if (isUserExists) {
       return { success: false, message: messages.USER_ALREADY_EXISTS };
     }
