@@ -9,4 +9,5 @@ export const messages = {
   INVALID_OR_EXPIRED_TOKEN: 'Invalid or expired verification link',
   EMAIL_VERIFICATION_SUCCESS: 'Email verified successfully. You can now log in.',
   EMAIL_NOT_VERIFIED: 'Please verify your email before logging in',
+  SIGNUP_FAILED: 'Failed to create or update user',
 };

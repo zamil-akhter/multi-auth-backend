@@ -19,15 +19,36 @@ export class AuthService {
   async signUp(dto: SignUpDto): Promise<{ success: boolean; message: string; data?: SignUpDto }> {
     const { name, email, password } = dto;
 
-    const isUserExists = await this.userModel.findOne({ email, isEmailVerified: true });
-    if (isUserExists) {
+    const existingUser = await this.userModel.findOne({ email });
+    if (existingUser && existingUser.isEmailVerified) {
       return { success: false, message: messages.USER_ALREADY_EXISTS };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const token = crypto.randomBytes(32).toString('hex');
-    const user = await this.userModel.create({ name, email, password: hashedPassword, emailVerificationToken: token, emailVerificationExpires: new Date(Date.now() + 60 * 60 * 1000) });
 
+    const user = existingUser
+      ? await this.userModel.findByIdAndUpdate(
+          existingUser._id,
+          {
+            name,
+            password: hashedPassword,
+            emailVerificationToken: token,
+            emailVerificationExpires: new Date(Date.now() + 60 * 60 * 1000),
+          },
+          { new: true },
+        )
+      : await this.userModel.create({
+          name,
+          email,
+          password: hashedPassword,
+          emailVerificationToken: token,
+          emailVerificationExpires: new Date(Date.now() + 60 * 60 * 1000),
+        });
+
+    if (!user) {
+      return { success: false, message: messages.SIGNUP_FAILED };
+    }
     await this.mailService.sendVerificationEmail(user.email, user.name, token);
 
     return { success: true, message: messages.SIGNUP_SUCCESS };
